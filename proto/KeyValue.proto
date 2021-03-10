@@ -1,0 +1,20 @@
+syntax = "proto3";
+package KeyValue;
+
+message KeyRequest {
+    string Key = 1;
+}
+
+message KeyResponse {
+    string Value = 1;
+}
+
+message KeyValue {
+    string Key = 1;
+    string Value = 2;
+}
+
+service KV {
+    rpc Get (KeyRequest) returns (stream KeyResponse) {}
+    rpc Add (KeyValue) returns (stream KeyValue) {}
+}
