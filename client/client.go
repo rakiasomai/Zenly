@@ -54,6 +54,7 @@ func user_add() {
 	}()
 	<-done
 	log.Printf("finished")
+	stream.CloseSend()
 }
 
 // start user get function 
@@ -66,6 +67,7 @@ func user_get() {
 
 	
 	in := &pb.KeyRequest{Key: k}
+	
 	stream, err := client.Get(context.Background(), in)
 	if err != nil {
 		log.Fatalf("openn stream error %v", err)
@@ -76,6 +78,7 @@ func user_get() {
 
 	go func() {
 		for {
+
 			resp, err := stream.Recv()
 			if err == io.EOF {
 				done <- true //close(done)
@@ -89,24 +92,26 @@ func user_get() {
 	}()
 	<-done
 	log.Printf("finished")
+	main()
 }
-
 
 
 
 func main() {
 	rand.Seed(time.Now().Unix())
+	var c string
+	fmt.Printf("choose the function : ")
+	fmt.Scanf("%s", &c)
 
 	// dail server
 	conn, err = grpc.Dial(":9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("can not connect with server %v", err)
-	}
-
-	for {
-		 user_add()
+	} else if c == "a" {
 		user_get()
+		} else if c == "b" {
+		user_add()
+		} else {
+	
 	}
-
-
 }

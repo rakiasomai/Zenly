@@ -33,6 +33,14 @@ var ObList = []*Ob{
 		Key: "Rakia",
 		Value: "Tunis",
 	},
+	&Ob{
+		Key: "Steeve",
+		Value: "Paris",
+	},
+	&Ob{
+		Key: "Julien",
+		Value: "San Francisco",
+	},
 }
 
 
@@ -48,7 +56,7 @@ func findAdd(name string) (*Ob, error) {
 }
 
 func (s server) Add(in *pb.KeyValue, srv pb.KV_AddServer) error {
-	log.Printf("fetch response for key : %d", in.Key)
+	log.Printf("fetch response for key : %s", in.Key)
 	var wg sync.WaitGroup
 	for i := 0; i < 1; i++ {
 		wg.Add(1)
@@ -60,21 +68,12 @@ func (s server) Add(in *pb.KeyValue, srv pb.KV_AddServer) error {
 		ObList = append(ObList, &newKV)
 		log.Printf("%v", ObList)
 
-		/* newList = append(ObList, {Key: in.Key, Value: in.Value}) */
-		/* &ObList = append(&ObList, {Key: in.Key, Value: in.Value}) */
-		/* ObList = append(ObList,)
-		log.Printf("%v", ObList)
-		log.Printf("%v", newList) */
-
-		
-
 		go func(count int64) {
-			/* Value := "Tunis" */
-			resp := pb.KeyValue{Value: fmt.Sprintf("Request #%d : your adress is : %s", count, in.Value)}
+			resp := pb.KeyValue{Value: fmt.Sprintf("Your Key and Value have been saved")}
 			if err := srv.Send(&resp); err != nil {
 				log.Printf("send error %v", err)
 			}
-			log.Printf("finishing request number : %d", count)
+			/* log.Printf("finishing request number : %d", count) */
 		}(int64(i))
 	}
 	wg.Wait()
@@ -100,7 +99,7 @@ func getValueByKey(name string) string {
 }
 
 func (s server) Get(in *pb.KeyRequest, srv pb.KV_GetServer) error {
-	log.Printf("fetch response for key : %d", in.Key)
+	log.Printf("fetch response for key : %s", in.Key)
 	var wg sync.WaitGroup
 	for i := 0; i < 1; i++ {
 		wg.Add(1)
@@ -114,22 +113,18 @@ func (s server) Get(in *pb.KeyRequest, srv pb.KV_GetServer) error {
 			log.Printf("The %s does not exist", userKey)
 		}
 		go func(count int64) {
-
-			resp := pb.KeyResponse{Value: fmt.Sprintf("Request #%d For name: %s", count, in.Key)}
+			userKey := in.Key
+			value := getValueByKey(userKey) 
+			resp := pb.KeyResponse{Value: fmt.Sprintf("the value of name: %s is %s", userKey, value)}
 			if err := srv.Send(&resp); err != nil {
 				log.Printf("send error %v", err)
 			}
-			log.Printf("finishing request number : %d", count)
+			/* log.Printf("finishing request number : %d", count) */
 		}(int64(i))
 	}
 	wg.Wait()
 	return nil
 }
-
-
-
-
-
 
 func main() {
 	// create listiner
