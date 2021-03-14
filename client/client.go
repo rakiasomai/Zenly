@@ -14,7 +14,6 @@ import (
 var conn grpc.ClientConnInterface
 var err error
 
-
 // start user add function
 func user_add() {
 	client := pb.NewKVClient(conn)
@@ -34,7 +33,6 @@ func user_add() {
 	}
 
 	//ctx := stream.Context()
-
 	func() {
 		for {
 			resp, err := stream.Recv()
@@ -48,8 +46,7 @@ func user_add() {
 			break
 		}
 		log.Printf("finished")
-	}()
-	
+	}()	
 }
 
 // start user get function 
@@ -59,7 +56,6 @@ func user_get() {
 
 	fmt.Printf("Write The key that you want to get : ")
 	fmt.Scanf("%s", &k)
-
 	
 	in := &pb.KeyRequest{Key: k}
 	
@@ -87,7 +83,7 @@ func user_get() {
 	}()
 }
 
-
+// choose which function you want to run 
 func choice() {
 	var c string
 	fmt.Printf("Choose the function add or get : ")

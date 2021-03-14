@@ -12,16 +12,15 @@ import (
 	"google.golang.org/grpc"
 )
 
-var ErrNotfound = fmt.Errorf("name nor found")
+var ErrNotfound = fmt.Errorf("name not found")
 
 type server struct{}
-
 
 type Ob struct {
 	Key string
 	Value string
 }
-
+// our fake data
 var ObList = []*Ob{
 	&Ob{
 		Key: "Khalil",
@@ -39,18 +38,6 @@ var ObList = []*Ob{
 		Key: "Julien",
 		Value: "San Francisco",
 	},
-}
-
-
-func findAdd(name string) (*Ob, error) {
-	i, err := strconv.Atoi(find(name)) 
-	if err == nil {
-		return nil, ErrNotfound
-	}
-	if i == -1 {
-		return nil, ErrNotfound
-	}
-	return ObList[i], nil
 }
 
 func (s server) Add(in *pb.KeyValue, srv pb.KV_AddServer) error {
@@ -112,8 +99,16 @@ func (s server) Get(in *pb.KeyRequest, srv pb.KV_GetServer) error {
 
 		go func() {
 			userKey := in.Key
-			value := getValueByKey(userKey) 
-			resp := pb.KeyResponse{Value: fmt.Sprintf("the value of name: %s is %s", userKey, value)}
+
+			var resMsg string
+			if find(userKey) != "-1" {
+				value := getValueByKey(userKey)
+				resMsg = "The value of " + userKey + " is " + value
+			} else {
+				resMsg = "The " + userKey + " does not exist"
+			}
+
+			resp := pb.KeyResponse{Value: fmt.Sprintf(resMsg)}
 			if err := srv.Send(&resp); err != nil {
 				log.Printf("send error %v", err)
 			}
