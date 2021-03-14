@@ -72,7 +72,6 @@ func user_get() {
 	//ctx := stream.Context()
     func() {
 		for {
-
 			resp, err := stream.Recv()
 			if err == io.EOF {
 				return
@@ -81,7 +80,6 @@ func user_get() {
 				log.Fatalf("can not receive %v", err)
 			}	
 			log.Printf("Resp received: %s", resp.Value)
-			log.Printf("the key does not exist")
 			break
 		}
 		log.Printf("finished")
