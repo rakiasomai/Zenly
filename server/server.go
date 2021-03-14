@@ -22,8 +22,6 @@ type Ob struct {
 	Value string
 }
 
-/* type Obs []*Ob */
-
 var ObList = []*Ob{
 	&Ob{
 		Key: "Khalil",
@@ -68,13 +66,12 @@ func (s server) Add(in *pb.KeyValue, srv pb.KV_AddServer) error {
 		ObList = append(ObList, &newKV)
 		log.Printf("%v", ObList)
 
-		go func(count int64) {
+		go func() {
 			resp := pb.KeyValue{Value: fmt.Sprintf("Your Key and Value have been saved")}
 			if err := srv.Send(&resp); err != nil {
 				log.Printf("send error %v", err)
 			}
-			/* log.Printf("finishing request number : %d", count) */
-		}(int64(i))
+		}()
 	}
 	wg.Wait()
 	return nil
@@ -112,16 +109,17 @@ func (s server) Get(in *pb.KeyRequest, srv pb.KV_GetServer) error {
 		} else {
 			log.Printf("The %s does not exist", userKey)
 		}
-		go func(count int64) {
+
+		go func() {
 			userKey := in.Key
 			value := getValueByKey(userKey) 
 			resp := pb.KeyResponse{Value: fmt.Sprintf("the value of name: %s is %s", userKey, value)}
 			if err := srv.Send(&resp); err != nil {
 				log.Printf("send error %v", err)
 			}
-			/* log.Printf("finishing request number : %d", count) */
-		}(int64(i))
+		}()
 	}
+	
 	wg.Wait()
 	return nil
 }

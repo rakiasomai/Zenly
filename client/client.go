@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 
 	pb "github.com/rakiasomai/Zenly/proto"
-
-	"time"
 
 	"google.golang.org/grpc"
 )
@@ -37,24 +34,22 @@ func user_add() {
 	}
 
 	//ctx := stream.Context()
-	done := make(chan bool)
 
-	go func() {
+	func() {
 		for {
 			resp, err := stream.Recv()
 			if err == io.EOF {
-				done <- true //close(done)
 				return
 			}
 			if err != nil {
-				log.Fatalf("can not receive %v", err)
-			}
+				log.Fatalf("can not receive %v", err)			
+			} 
 			log.Printf("Resp received: %s", resp.Value)
+			break
 		}
+		log.Printf("finished")
 	}()
-	<-done
-	log.Printf("finished")
-	stream.CloseSend()
+	
 }
 
 // start user get function 
@@ -69,49 +64,49 @@ func user_get() {
 	in := &pb.KeyRequest{Key: k}
 	
 	stream, err := client.Get(context.Background(), in)
+
 	if err != nil {
 		log.Fatalf("openn stream error %v", err)
 	}
 
 	//ctx := stream.Context()
-	done := make(chan bool)
-
-	go func() {
+    func() {
 		for {
 
 			resp, err := stream.Recv()
 			if err == io.EOF {
-				done <- true //close(done)
 				return
 			}
 			if err != nil {
 				log.Fatalf("can not receive %v", err)
-			}
+			}	
 			log.Printf("Resp received: %s", resp.Value)
+			log.Printf("the key does not exist")
+			break
 		}
+		log.Printf("finished")
+		
 	}()
-	<-done
-	log.Printf("finished")
-	main()
 }
 
 
-
-func main() {
-	rand.Seed(time.Now().Unix())
+func choice() {
 	var c string
-	fmt.Printf("choose the function : ")
+	fmt.Printf("Choose the function add or get : ")
 	fmt.Scanf("%s", &c)
+	switch {
+	case c == "add":
+		user_add()
+	case c == "get":
+		user_get()
+	}
+}
 
+func main() {   
 	// dail server
 	conn, err = grpc.Dial(":9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("can not connect with server %v", err)
-	} else if c == "a" {
-		user_get()
-		} else if c == "b" {
-		user_add()
-		} else {
-	
-	}
+	} 
+	choice()
 }
